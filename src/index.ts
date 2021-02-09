@@ -26,6 +26,21 @@ app.post("/api/register", (_req, res) => {
 
   try {
     const path = `/user/${id}`
+
+    db.push(path, { id });
+    res.json({ userId: id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error generating the secret" });
+  }
+})
+
+// -> Enable 2FA
+app.post("/api/enable", (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    const path = `/user/${userId}`;
     const temp2FASecret = speakeasy.generateSecret({
       name: "Syntronic MFA App"
     });
@@ -33,11 +48,11 @@ app.post("/api/register", (_req, res) => {
     // -> Embed secret into QR Code
     // -> Base64 URL for the PNG
 
-    db.push(path, { id, temp2FASecret });
-    res.json({ id, temp2FASecret });
+    db.push(path, { temp2FASecret });
+    res.json({ userId, temp2FASecret });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error generating the secret" });
+    res.status(500).json({ message: "Error finding the user" });
   }
 })
 
