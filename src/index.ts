@@ -9,10 +9,8 @@ import qrcode from "qrcode";
 // import { authenticator } from "otplib";
 // -> Within codebase
 import { generateOTPauthUrl } from "./helpers";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { APP_NAME } from "./Constants"
 // import { NUM_BYTES_TOTP_SECRET } from "./Constants"
-// import { authenticator } from "otplib";
 
 const { PORT } = process.env;
 
@@ -20,10 +18,7 @@ const app = express();
 
 app.use(express.json());
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const db = new JsonDB(new Config('2fa-db', true, false, '/'));
-
-db.exists("/api");
 
 app.get("/api", (_req, res) => {
   res.json({ message: "welcome to the 2fa app" });
