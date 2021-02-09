@@ -6,9 +6,13 @@ import { v4 } from "uuid";
 import { JsonDB } from "node-json-db";
 import { Config } from "node-json-db/dist/lib/JsonDBConfig";
 import qrcode from "qrcode";
+// import { authenticator } from "otplib";
 // -> Within codebase
 import { generateOTPauthUrl } from "./helpers";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { APP_NAME } from "./Constants"
+// import { NUM_BYTES_TOTP_SECRET } from "./Constants"
+// import { authenticator } from "otplib";
 
 const { PORT } = process.env;
 
@@ -46,6 +50,8 @@ app.post("/api/enable", (req, res) => {
 
   try {
     const path = `/user/${userId}`;
+    // -> OTPLIB ALT IMPLEMENTATION PORTION
+    // const temp2FASecret = authenticator.generateSecret(NUM_BYTES_TOTP_SECRET);
     const temp2FASecret = speakeasy.generateSecret({ name: APP_NAME });
     const otpauth = generateOTPauthUrl(APP_NAME, temp2FASecret.base32);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,6 +81,9 @@ app.post("/api/verify", (req, res) => {
     console.log("user -> ", user);
     const { temp2FASecret: { base32: secret }} = user;
 
+    // -> OTPLIB ALT IMPLEMENTATION PORTION
+    // const verified = authenticator.check(token, secret);
+
     const verified = speakeasy.totp.verify({
       secret,
       encoding: "base32",
@@ -102,6 +111,9 @@ app.post("/api/validate", (req, res) => {
     const user = db.getData(path);
     console.log("user -> ", user);
     const { secret: { base32: secret }} = user;
+
+    // -> OTPLIB ALT IMPLEMENTATION PORTION
+    // const tokenValidated = authenticator.check(token, secret);
 
     const tokenValidated = speakeasy.totp.verify({
       secret,
