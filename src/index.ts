@@ -1,9 +1,14 @@
+// -> Beyond codebase
 import "dotenv/config";
 import express from "express";
 import speakeasy from "speakeasy";
 import { v4 } from "uuid";
 import { JsonDB } from "node-json-db";
 import { Config } from "node-json-db/dist/lib/JsonDBConfig";
+import qrcode from "qrcode";
+// -> Within codebase
+import { generateOTPauthUrl } from "./helpers";
+import { APP_NAME } from "./Constants"
 
 const { PORT } = process.env;
 
@@ -41,15 +46,19 @@ app.post("/api/enable", (req, res) => {
 
   try {
     const path = `/user/${userId}`;
-    const temp2FASecret = speakeasy.generateSecret({
-      name: "Syntronic MFA App"
+    const temp2FASecret = speakeasy.generateSecret({ name: APP_NAME });
+    const otpauth = generateOTPauthUrl(APP_NAME, temp2FASecret.base32);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    qrcode.toDataURL(otpauth, (err: any, imageUrl: string) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+
+      const QRCodeImageUrl = imageUrl;
+      db.push(path, { temp2FASecret });
+      res.json({ userId, temp2FASecret, QRCodeImageUrl });
     });
-
-    // -> Embed secret into QR Code
-    // -> Base64 URL for the PNG
-
-    db.push(path, { temp2FASecret });
-    res.json({ userId, temp2FASecret });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error finding the user" });

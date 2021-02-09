@@ -1,1 +1,1 @@
-export * from "./generateOTPathUrl";
+export * from "./generateOTPauthUrl";
