@@ -35,7 +35,7 @@ app.post("/api/register", (_req, res) => {
     res.json({ userId: id });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error generating the secret" });
+    res.status(500).json({ message: "Error generating the user" });
   }
 })
 
